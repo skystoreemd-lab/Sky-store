@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Store - أداة تنحيف الفك</title>
+    <style>
+        :root {
+            --bg-color: #05070a;
+            --primary-blue: #0077ff;
+            --accent-purple: #7000ff;
+            --neon-blue: #00d4ff;
+            --text-white: #ffffff;
+            --text-gray: #a0a0a0;
+            --error-red: #ff4444;
+            --success-green: #00ff88;
+            --whatsapp-green: #25d366;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            overflow-x: hidden;
+            line-height: 1.6;
+            direction: rtl;
+        }
+
+        /* Background Dots */
+        .bg-dots {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none;
+        }
+        .dot {
+            position: absolute; width: 2px; height: 2px;
+            background: var(--neon-blue); border-radius: 50%;
+            opacity: 0.15; animation: float 15s infinite linear;
+        }
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            50% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+        }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; position: relative; }
+
+        /* Page Transitions */
+        .page { display: none; animation: fadeIn 0.6s ease-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Landing Elements */
+        .hero-title { font-size: 2.2rem; text-align: center; margin-bottom: 10px; background: linear-gradient(to left, var(--neon-blue), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-desc { text-align: center; color: var(--text-gray); margin-bottom: 30px; font-size: 1rem; }
+
+        .price-card {
+            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 20px;
+        }
+        .price-val { font-size: 2.5rem; color: var(--neon-blue); font-weight: bold; }
+        .price-currency { font-size: 1rem; color: var(--text-gray); }
+        .free-delivery { color: var(--success-green); display: block; margin-top: 5px; font-weight: bold; }
+
+        .social-proof { text-align: center; margin-bottom: 30px; color: var(--text-gray); font-size: 0.9rem; }
+        .counter-num { color: var(--accent-purple); font-weight: bold; font-size: 1.2rem; }
+
+        /* Buttons */
+        .btn {
+            width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 1.1rem;
+            font-weight: bold; cursor: pointer; transition: 0.3s; margin-bottom: 12px;
+            display: block; text-align: center; text-decoration: none;
+        }
+        .btn-order {
+            background: linear-gradient(45deg, var(--primary-blue), var(--accent-purple));
+            color: white; box-shadow: 0 0 20px rgba(0, 119, 255, 0.2);
+            animation: shake 4s infinite;
+        }
+        .btn-order:hover { transform: scale(1.02); box-shadow: 0 0 30px rgba(0, 119, 255, 0.4); }
+        @keyframes shake { 0%, 90%, 100% { transform: scale(1); } 93% { transform: scale(1.05); } 96% { transform: scale(0.98); } }
+
+        .btn-next { background: var(--primary-blue); color: white; }
+        .btn-back { background: transparent; border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-gray); }
+
+        /* Form Elements */
+        .form-label { display: block; margin-bottom: 10px; color: var(--neon-blue); font-weight: bold; }
+        input, select {
+            width: 100%; padding: 14px; background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px;
+            color: white; font-size: 1rem; margin-bottom: 5px; outline: none; transition: 0.3s;
+            text-align: right;
+        }
+        input:focus, select:focus { border-color: var(--neon-blue); background: rgba(255, 255, 255, 0.05); }
+        .error-txt { color: var(--error-red); font-size: 0.85rem; margin-bottom: 15px; display: none; }
+
+        /* WhatsApp Floating Button */
+        .whatsapp-float {
+            position: fixed; bottom: 20px; right: 20px;
+            background-color: var(--whatsapp-green); color: white;
+            width: 60px; height: 60px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000;
+            text-decoration: none; transition: 0.3s;
+            animation: bounce 2s infinite;
+        }
+        .whatsapp-float:hover { transform: scale(1.1); }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-10px);} 60% {transform: translateY(-5px);} }
+
+        /* Footer */
+        .footer {
+            text-align: center; padding: 20px; color: var(--text-gray); font-size: 0.85rem;
+            margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .footer a { color: var(--neon-blue); text-decoration: none; font-weight: bold; }
+
+        /* Modal */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .modal-content {
+            background: #0a0c10; padding: 30px; border-radius: 20px; text-align: center;
+            max-width: 90%; border: 1px solid var(--success-green); animation: zoomIn 0.3s;
+        }
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-icon { font-size: 3rem; color: var(--success-green); margin-bottom: 15px; }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 2000;
+        }
+        .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--neon-blue); border-radius: 50%; animation: spin 1s infinite linear; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="bg-dots" id="dots"></div>
+
+    <div class="container">
+        <!-- Page 1: Landing -->
+        <div class="page active" id="p1">
+            <h1 class="hero-title">أداة تنحيف الفك</h1>
+            <p class="hero-desc">Jawline Exerciser - احصل على فك محدد ومظهر جذاب بطريقة طبيعية</p>
+            
+            <div class="price-card">
+                <div class="price-val">12,000 <span class="price-currency">د.ع</span></div>
+                <span class="free-delivery">توصيل مجاني لجميع المحافظات</span>
+                <p style="font-size: 0.8rem; color: var(--text-gray); margin-top: 10px;">سيصلك الطلب خلال 24 ساعة فقط</p>
+            </div>
+
+            <div class="social-proof">
+                أكثر من <span class="counter-num" id="count">14,500</span> طلب تم تنفيذه بنجاح ✓
+            </div>
+
+            <button class="btn btn-order" onclick="go(2)">اطلب الآن</button>
+            
+            <a href="https://wa.me/9647774789781" class="btn btn-back" style="margin-top: 10px; border-color: var(--whatsapp-green); color: var(--whatsapp-green);">الدعم الفني (واتساب)</a>
+        </div>
+
+        <!-- Page 2: Governorate -->
+        <div class="page" id="p2">
+            <label class="form-label">اختر محافظتك</label>
+            <select id="gov">
+                <option value="">-- اختر المحافظة --</option>
+                <option value="بغداد">بغداد</option><option value="البصرة">البصرة</option><option value="نينوى">نينوى</option>
+                <option value="الأنبار">الأنبار</option><option value="كربلاء">كربلاء</option><option value="النجف">النجف</option>
+                <option value="ذي قار">ذي قار</option><option value="ميسان">ميسان</option><option value="واسط">واسط</option>
+                <option value="بابل">بابل</option><option value="ديالى">ديالى</option><option value="صلاح الدين">صلاح الدين</option>
+                <option value="كركوك">كركوك</option><option value="السليمانية">السليمانية</option><option value="أربيل">أربيل</option>
+                <option value="دهوك">دهوك</option><option value="المثنى">المثنى</option><option value="القادسية">القادسية</option>
+            </select>
+            <div class="error-txt" id="e2">يرجى اختيار المحافظة</div>
+            <button class="btn btn-next" onclick="val(2, 3)">التالي</button>
+            <button class="btn btn-back" onclick="go(1)">رجوع</button>
+        </div>
+
+        <!-- Page 3: Area -->
+        <div class="page" id="p3">
+            <label class="form-label">اسم المنطقة</label>
+            <input type="text" id="area" placeholder="مثال: المنصور، حي الجامعة...">
+            <div class="error-txt" id="e3">يرجى إدخال اسم المنطقة</div>
+            <button class="btn btn-next" onclick="val(3, 4)">التالي</button>
+            <button class="btn btn-back" onclick="go(2)">رجوع</button>
+        </div>
+
+        <!-- Page 4: Phone -->
+        <div class="page" id="p4">
+            <label class="form-label">رقم الهاتف</label>
+            <input type="tel" id="phone" placeholder="07XXXXXXXX" maxlength="11">
+            <div class="error-txt" id="e4">يرجى إدخال رقم هاتف صحيح (10-11 رقم)</div>
+            <button class="btn btn-next" onclick="val(4, 5)">التالي</button>
+            <button class="btn btn-back" onclick="go(3)">رجوع</button>
+        </div>
+
+        <!-- Page 5: Confirm -->
+        <div class="page" id="p5">
+            <h2 style="text-align: center; margin-bottom: 20px; color: var(--neon-blue);">تأكيد الطلب</h2>
+            <div class="price-card" style="text-align: right; font-size: 0.95rem;">
+                <p>📍 المحافظة: <span id="cGov" style="color: white;"></span></p>
+                <p>🏠 المنطقة: <span id="cArea" style="color: white;"></span></p>
+                <p>📞 الهاتف: <span id="cPhone" style="color: white;"></span></p>
+                <hr style="margin: 10px 0; opacity: 0.1;">
+                <p>💰 المجموع: <span style="color: var(--neon-blue); font-weight: bold;">12,000 د.ع</span></p>
+            </div>
+            <button class="btn btn-order" onclick="submitOrder()">تثبيت الحجز</button>
+            <button class="btn btn-back" onclick="go(4)">تعديل البيانات</button>
+        </div>
+
+        <div class="footer">
+            المطور <a href="https://wa.me/9647703841572">عزالدين جسام - 07703841572</a>
+        </div>
+    </div>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/9647774789781" class="whatsapp-float" title="الدعم الفني">
+        <svg width="35" height="35" viewBox="0 0 24 24" fill="white"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217s.231.001.332.005c.109.004.253-.041.397.303.145.346.491 1.197.534 1.284.044.087.073.188.014.303-.058.116-.087.188-.173.289l-.26.303c-.087.101-.177.211-.077.383.101.173.446.735.956 1.19.658.587 1.212.769 1.385.855.173.087.275.072.376-.043.101-.116.433-.505.548-.678.116-.173.231-.145.39-.087s1.011.477 1.184.563c.173.087.289.13.332.202.045.072.045.419-.1.824zM12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"/></svg>
+    </a>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="modal-icon">✅</div>
+            <h3>تم تثبيت الحجز بنجاح</h3>
+            <p style="color: var(--text-gray); margin: 10px 0;">سيتم التواصل معك قريباً لتأكيد الطلب.</p>
+            <button class="btn btn-next" onclick="location.reload()" style="margin-top: 15px;">إغلاق</button>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loading"><div class="spinner"></div></div>
+
+    <script>
+        // Background dots
+        const dots = document.getElementById('dots');
+        for(let i=0; i<30; i++) {
+            const d = document.createElement('div');
+            d.className = 'dot';
+            d.style.left = Math.random() * 100 + '%';
+            d.style.top = Math.random() * 100 + '%';
+            d.style.animationDelay = Math.random() * 10 + 's';
+            dots.appendChild(d);
+        }
+
+        // Counter
+        let count = Math.floor(Math.random() * 5000) + 14000;
+        function updateCounter() {
+            if(count < 19999) {
+                count += Math.floor(Math.random() * 30) + 10;
+                document.getElementById('count').innerText = count.toLocaleString('ar-IQ');
+            }
+        }
+        setInterval(updateCounter, 40000);
+        updateCounter();
+
+        // Navigation
+        function go(n) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('p' + n).classList.add('active');
+            if(n === 5) {
+                document.getElementById('cGov').innerText = document.getElementById('gov').value;
+                document.getElementById('cArea').innerText = document.getElementById('area').value;
+                document.getElementById('cPhone').innerText = document.getElementById('phone').value;
+            }
+            window.scrollTo(0,0);
+        }
+
+        function val(curr, next) {
+            let ok = false;
+            if(curr === 2) ok = !!document.getElementById('gov').value;
+            if(curr === 3) ok = !!document.getElementById('area').value.trim();
+            if(curr === 4) ok = /^\d{10,11}$/.test(document.getElementById('phone').value.trim());
+
+            if(ok) {
+                document.getElementById('e' + curr).style.display = 'none';
+                go(next);
+            } else {
+                document.getElementById('e' + curr).style.display = 'block';
+            }
+        }
+
+        async function submitOrder() {
+            const data = {
+                product: "أداة تنحيف الفك (Jawline Exerciser)",
+                quantity: 1,
+                gov: document.getElementById('gov').value,
+                area: document.getElementById('area').value,
+                phone: document.getElementById('phone').value
+            };
+
+            document.getElementById('loading').style.display = 'flex';
+
+            try {
+                const res = await fetch('/api/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if(res.ok) {
+                    document.getElementById('successModal').style.display = 'flex';
+                } else {
+                    alert('عذراً، حدث خطأ أثناء إرسال الطلب. يرجى المحاولة لاحقاً.');
+                }
+            } catch (e) {
+                alert('فشل الاتصال بالسيرفر.');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
